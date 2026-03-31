@@ -1,40 +1,44 @@
-# Oi-Fit API
+# Social Service API
 
-A robust RESTful API developed with **Fastify** and **TypeScript**, designed to manage products, users, addresses, and authentication. The API integrates with **Supabase** as a Backend-as-a-Service (BaaS) and uses **Zod** for rigorous data validation.
+A high-performance microservice developed with **Fastify** and **TypeScript**, dedicated to managing social interactions like posts and comments. The service integrates with **MongoDB** for data persistence and **RabbitMQ** for asynchronous communication and RPC patterns.
 
 ## 🚀 Technologies
 
 - **Framework:** [Fastify](https://www.fastify.io/)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Database/BaaS:** [Supabase](https://supabase.com/)
+- **Database:** [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
+- **Message Broker:** [RabbitMQ](https://www.rabbitmq.com/) with [amqplib](http://squaremo.github.io/amqp.node/)
 - **Validation:** [Zod](https://zod.dev/) (via `fastify-type-provider-zod`)
 - **Authentication:** [Fastify JWT](https://github.com/fastify/fastify-jwt)
 - **Documentation:** [Swagger](https://swagger.io/) & [Scalar](https://scalar.com/)
 - **Linting/Formatting:** [Biome](https://biomejs.dev/)
+- **Testing:** [Vitest](https://vitest.dev/)
 - **Build:** [Babel](https://babeljs.io/)
 
 ## 🏗️ Architecture
 
-The project follows a layered architecture for better maintainability and scalability:
+The project follows a modular layered architecture:
 
-- **Routes:** Endpoint definitions and validation schemas.
-- **Controllers:** Orchestration of requests and responses.
-- **Services:** Application business logic.
-- **Repositories:** Direct communication with Supabase/Database.
-- **Types:** TypeScript type definitions and Zod schemas.
-- **Lib:** External library configurations (e.g., Supabase Client).
+- **Routes:** Endpoint definitions and Zod validation schemas.
+- **Controllers:** Request handling and orchestration. Also handles RabbitMQ RPC actions.
+- **Services:** Core business logic and inter-service coordination.
+- **Repositories:** Data access layer using Mongoose models.
+- **Models:** MongoDB schema definitions.
+- **Lib:** Configuration for external services (MongoDB, RabbitMQ).
+- **Utils:** Common utilities for responses and error handling.
 
 ## 📋 Prerequisites
 
-- Node.js (v20 or higher recommended)
-- A Supabase account with an active project.
+- Node.js (v20 or higher)
+- MongoDB instance
+- RabbitMQ server
 
 ## 🛠️ Installation
 
 1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd oi-fit-api
+   cd social-service
    ```
 
 2. Install dependencies:
@@ -43,36 +47,36 @@ The project follows a layered architecture for better maintainability and scalab
    ```
 
 3. Configure environment variables:
-   Create a `.env` file in the project root with the following keys:
+   Create a `.env` file based on `.env.example`:
    ```env
    JWT_SECRET=your_jwt_secret
-   SUPABASE_URL=your_supabase_url
-   SUPABASE_ANON_KEY=your_supabase_anon_key
+   MONGODB_URI=mongodb://localhost:27017/social-service
+   RABBITMQ_URL=amqp://localhost
+   RABBITMQ_QUEUE=social_service_queue
    ```
 
 ## ⚙️ Available Scripts
 
-- `npm run dev`: Starts the server in development mode with hot-reload (using `tsx` and `nodemon`).
-- `npm run build`: Compiles the TypeScript project to JavaScript in the `dist` folder using Babel.
-- `npm start`: Starts the server from the compiled code in `dist`.
-- `npm run lint`: Runs Biome to check and fix linting and formatting issues.
+- `npm run dev`: Starts the server in development mode with hot-reload.
+- `npm run build`: Compiles the TypeScript project to JavaScript in the `dist` folder.
+- `npm start`: Starts the server from the compiled code.
+- `npm run lint`: Runs Biome for linting and formatting.
+- `npm run test`: Runs the test suite using Vitest.
 
 ## 🐳 Docker
 
-You can also run the application using Docker:
+Run the application using Docker:
 
 1. Build the image:
    ```bash
-   docker build -t oi-fit-api .
+   docker build -t social-service-api .
    ```
 
-2. Start the container (remember to pass the environment variables):
+2. Start the container:
    ```bash
    docker run -p 3333:3333 \
-     -e JWT_SECRET=your_secret \
-     -e SUPABASE_URL=your_url \
-     -e SUPABASE_ANON_KEY=your_key \
-     oi-fit-api
+     --env-file .env \
+     social-service-api
    ```
 
 ## 📖 API Documentation
@@ -82,10 +86,9 @@ Interactive API documentation is available via Scalar. With the server running, 
 `http://localhost:3333/docs`
 
 ### Main Modules:
-- **Auth:** User registration and login with JWT token generation.
-- **Users:** User profile management.
-- **Products:** Product listing and management.
-- **Address:** Management of addresses linked to users.
+- **Posts:** Create, list, update, and delete social posts.
+- **Comments:** Manage comments on posts.
+- **RabbitMQ RPC:** Listens for external requests via the configured queue for background processing.
 
 ---
 Developed by [tobias.bp2004@gmail.com](mailto:tobias.bp2004@gmail.com)
